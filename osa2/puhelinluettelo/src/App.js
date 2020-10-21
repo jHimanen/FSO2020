@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import Persons from './components/Persons';
 import ContactForm from './components/ContactForm';
 import Filter from './components/Filter';
+import contactService from './services/contacts';
 
 const App = () => {
 
@@ -13,31 +13,46 @@ const App = () => {
   const [ showAll, setShowAll ] = useState(true);
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-      })
+    contactService
+      .getAll()
+        .then(initialContacts => {
+          setPersons(initialContacts)
+        })
   }, []);
 
   const addPerson = (event) => {
     event.preventDefault();
 
+    const personObject = {
+      name: newName,
+      nr: newNr
+    }
+
     if (persons.map(person => person.name).includes(newName)) {
-      alert(`${newName} is already added to the phonebook`);
+      if (window.confirm(`${newName} is already added to the phonebook, replace with new number?`)) {
+        const contact = persons.find(p => p.name === newName);
+        const changedContact = { ...contact, nr: newNr}
+        contactService
+          .update(changedContact)
+          .then(updatedContact => {
+            setPersons(persons.map(p => p.name !== newName ? p : updatedContact));
+            setNewName('');
+            setNewNr('');
+          })
+      }
     }
     else if (persons.map(person => person.nr).includes(newNr)) {
       alert(`${newNr} is already added to the phonebook`);
     }
     else {
-      const personObject = {
-        name: newName,
-        nr: newNr
-      }
-
-      setPersons(persons.concat(personObject));
-      setNewName('');
-      setNewNr('');
+      
+      contactService
+        .create(personObject)
+          .then(returnedContact => {
+            setPersons(persons.concat(returnedContact))
+            setNewName('');
+            setNewNr('');
+          })
     }
   }
 
@@ -77,7 +92,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons people={personsToShow} />
+      <Persons people={personsToShow} setPersons={setPersons} />
     </div>
   )
 }
