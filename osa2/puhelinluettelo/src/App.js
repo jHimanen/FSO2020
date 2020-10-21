@@ -6,11 +6,12 @@ import contactService from './services/contacts';
 
 const App = () => {
 
-  const [ persons, setPersons] = useState([]);
+  const [ persons, setPersons ] = useState([]);
   const [ newName, setNewName ] = useState('');
   const [ newNr, setNewNr ] = useState('');
   const [ newFilter, setNewFilter ] = useState('');
   const [ showAll, setShowAll ] = useState(true);
+  const [ notificationObject, setNotificationObject ] = useState({});
 
   useEffect(() => {
     contactService
@@ -19,6 +20,51 @@ const App = () => {
           setPersons(initialContacts)
         })
   }, []);
+
+  const Notification = ({ type, message }) => {
+
+    const successStyle = {
+      color: 'green',
+      background: 'lightgrey',
+      fontSize: 20,
+      borderStyle: 'solid',
+      borderRadius: 5,
+      padding: 10,
+      marginBottom: 10
+    }
+
+    const errorStyle = {
+      color: 'red',
+      background: 'lightgrey',
+      fontSize: 20,
+      borderStyle: 'solid',
+      borderRadius: 5,
+      padding: 10,
+      marginBottom: 10
+    }
+
+    if (type === 'success') {
+      return (
+        <div style={successStyle} >
+          {message}
+        </div>
+      )
+
+    } else if (type === 'error') {
+      return (
+        <div style={errorStyle}>
+          {message}
+        </div>
+      )
+    } else return null;
+  }
+
+  const changeNotification = (type, message) => {
+    setNotificationObject({type, message})
+    setTimeout(() => {
+      setNotificationObject({})
+    }, 5000)
+  }
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -29,15 +75,24 @@ const App = () => {
     }
 
     if (persons.map(person => person.name).includes(newName)) {
+
       if (window.confirm(`${newName} is already added to the phonebook, replace with new number?`)) {
         const contact = persons.find(p => p.name === newName);
         const changedContact = { ...contact, nr: newNr}
+
         contactService
           .update(changedContact)
           .then(updatedContact => {
             setPersons(persons.map(p => p.name !== newName ? p : updatedContact));
             setNewName('');
             setNewNr('');
+            changeNotification('success', `Updated number of ${newName}`);
+          })
+          .catch(error => {
+            changeNotification(
+              'error', `Information of ${newName} has already been deleted from the server`
+            )
+            setPersons(persons.filter(p => p.id !== contact.id))
           })
       }
     }
@@ -45,15 +100,29 @@ const App = () => {
       alert(`${newNr} is already added to the phonebook`);
     }
     else {
-      
       contactService
         .create(personObject)
           .then(returnedContact => {
             setPersons(persons.concat(returnedContact))
             setNewName('');
             setNewNr('');
+            changeNotification('success', `Added ${newName}`);
           })
     }
+  }
+
+  const deletePerson = (contact) => {
+    contactService
+      .nuke(contact)
+      .then(() => {
+        contactService
+          .getAll()
+          .then(updatedContacts => {
+            setPersons(updatedContacts)
+          })
+      })
+    
+    changeNotification('success', `Deleted ${contact.name}`);
   }
 
   const handleNameChange = (event) => {
@@ -78,6 +147,8 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
 
+      <Notification type={notificationObject.type} message={notificationObject.message} />
+
       <Filter filter={newFilter} filterChange={handleFilterChange} />
 
       <h3>Add a new contact</h3>
@@ -92,7 +163,7 @@ const App = () => {
 
       <h3>Numbers</h3>
 
-      <Persons people={personsToShow} setPersons={setPersons} />
+      <Persons people={personsToShow} deletePerson={deletePerson} />
     </div>
   )
 }
