@@ -102,12 +102,17 @@ const App = () => {
     else {
       contactService
         .create(personObject)
-          .then(returnedContact => {
-            setPersons(persons.concat(returnedContact))
-            setNewName('');
-            setNewNr('');
-            changeNotification('success', `Added ${newName}`);
-          })
+        .then(returnedContact => {
+          setPersons(persons.concat(returnedContact))
+          setNewName('');
+          setNewNr('');
+          changeNotification('success', `Added ${newName}`);
+        })
+        .catch(error => {
+          console.log(error.response.data)
+          changeNotification('error', `Person validation failed: ${error.response.data}`)
+        })
+
     }
   }
 
