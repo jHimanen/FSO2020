@@ -16,7 +16,7 @@ const initialBlogs = [
         title: 'Second post',
         author: 'Jami Jantunen',
         url: 'http://www.yle.fi/~jami',
-        likes: 6
+        likes: 8
     }
 ]
 
@@ -76,11 +76,76 @@ const listWithMultipleBlogs = [
 
 describe('Basic tests', () => {
 
-    test('amount and format of returned blogs are correct', async () => {
+    test('Amount of returned blogs is correct', async () => {
         const res = await api.get('/api/blogs')
         expect(200)
-        //expect('Content-Type', /application\/json/)
         expect(res.body).toHaveLength(initialBlogs.length)
+    })
+
+    test('Each blog has an ID', async () => {
+        const res = await api.get('/api/blogs')
+        expect(200)
+        res.body.forEach(blog => {
+            expect(blog.id).toBeDefined()
+        })
+    })
+
+    test('Adding a blog post succeeds', async () => {
+        const newBlog = {
+            title: 'Test',
+            author: 'Tester',
+            url: 'http://www.test.com/',
+            likes: 0
+        }
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+
+        const blogsAtEnd = await Blog.find({})
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length + 1)
+    })
+
+    test('Default amount of likes is zero', async () => {
+        const newBlog = {
+            title: 'Test',
+            author: 'Tester',
+            url: 'http://www.test.com/'
+        }
+
+        await api
+            .post('/api/blogs')
+            .send(newBlog)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+
+        const latest = await Blog.find({title: 'Test'})
+        expect(latest[0].likes).toEqual(0)
+    })
+
+    test('Posting a blog without title or URL yields status code 400', async () => {
+        const noTitle = {
+            author: 'NoTitle',
+            url: 'http://www.test.com/'
+        }
+        const noURL = {
+            title: 'No URL',
+            author: 'Dummy'
+        }
+
+        await api
+            .post('/api/blogs')
+            .send(noTitle)
+            .expect(400)
+        await api
+            .post('/api/blogs')
+            .send(noURL)
+            .expect(400)
+
+        const blogsAtEnd = await Blog.find({})
+        expect(blogsAtEnd).toHaveLength(initialBlogs.length)
     })
 })
 

@@ -6,15 +6,17 @@ blogsRouter.get('/', async (request, response) => {
     await response.json(blogs)
 })
   
-blogsRouter.post('/', (request, response) => {
-    console.log(request)
-    const blog = new Blog(request.body)
-    
-    blog
-        .save()
-        .then(result => {
-            response.status(201).json(result)
-        })
+blogsRouter.post('/', async (request, response) => {
+    try {
+        const blog = new Blog(request.body)
+        const savedBlog = await blog.save()
+
+        response.status(201).json(savedBlog)
+    } catch (exception) {
+        if (exception.name === 'ValidationError') {
+            return response.status(400).json({ error: exception.message })
+        }
+    }
 })
 
 module.exports = blogsRouter
