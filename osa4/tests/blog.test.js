@@ -1,4 +1,32 @@
 const listHelper = require('../utils/list_helper')
+const mongoose = require('mongoose')
+const supertest = require('supertest')
+const app = require('../app')
+const api = supertest(app)
+const Blog = require('../models/blog')
+
+const initialBlogs = [
+    {
+        title: 'First post',
+        author: 'Jenna Julkunen',
+        url: 'http://www.yle.fi/~jenna',
+        likes: 6
+    },
+    {
+        title: 'Second post',
+        author: 'Jami Jantunen',
+        url: 'http://www.yle.fi/~jami',
+        likes: 6
+    }
+]
+
+beforeEach(async () => {
+    await Blog.deleteMany({})
+    let blogObject = new Blog(initialBlogs[0])
+    await blogObject.save()
+    blogObject = new Blog(initialBlogs[1])
+    await blogObject.save()
+})
 
 const listWithOneBlog = [
     {
@@ -45,6 +73,16 @@ const listWithMultipleBlogs = [
         __v: 3
     }
 ]
+
+describe('Basic tests', () => {
+
+    test('amount and format of returned blogs are correct', async () => {
+        const res = await api.get('/api/blogs')
+        expect(200)
+        //expect('Content-Type', /application\/json/)
+        expect(res.body).toHaveLength(initialBlogs.length)
+    })
+})
 
 describe('Total likes', () => {
 
@@ -136,4 +174,8 @@ describe('Most likes', () => {
             likes: 16
         })
     })
+})
+
+afterAll(() => {
+    mongoose.connection.close()
 })

@@ -8,7 +8,6 @@ const logger = require('./utils/logger')
 const blogsRouter = require('./controllers/blogs')
 require('dotenv').config()
 
-
 mongoose.connect(config.mongoUrl, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
 logger.info('Connected to MongoDB')
 
