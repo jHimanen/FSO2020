@@ -147,6 +147,41 @@ describe('Basic tests', () => {
         const blogsAtEnd = await Blog.find({})
         expect(blogsAtEnd).toHaveLength(initialBlogs.length)
     })
+
+    test('Deleting a blog post succeeds', async () => {
+        const target = (await Blog.find({title: 'Second post'}))[0]
+        const targetID = target.id
+
+        await api
+            .delete(`/api/blogs/${targetID}`)
+            .expect(204)
+
+        const blogsAtEnd = await Blog.find({})
+        const contents = blogsAtEnd.map(b => b.title)
+
+        expect(contents).not.toContain(target.title)
+    })
+
+    test('Updating a blog post succeeds', async () => {
+        const updatedBlog = {
+            title: 'Second post',
+            author: 'Jami Jantunen',
+            url: 'http://www.yle.fi/~jami',
+            likes: 5
+        }
+
+        const target = (await Blog.find({title: 'Second post'}))[0]
+        const targetID = target.id
+
+        await api
+            .put(`/api/blogs/${targetID}`)
+            .send(updatedBlog)
+            .expect(200)
+
+        const updated = (await Blog.find({title: 'Second post'}))[0]
+
+        expect(updated.likes).toEqual(5)
+    })
 })
 
 describe('Total likes', () => {
