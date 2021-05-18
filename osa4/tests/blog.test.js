@@ -95,7 +95,8 @@ describe('Basic tests', () => {
             title: 'Test',
             author: 'Tester',
             url: 'http://www.test.com/',
-            likes: 0
+            likes: 0,
+            userID: '609e7b1d43b45c1a9ad1d6e3'
         }
 
         await api
@@ -112,7 +113,8 @@ describe('Basic tests', () => {
         const newBlog = {
             title: 'Test',
             author: 'Tester',
-            url: 'http://www.test.com/'
+            url: 'http://www.test.com/',
+            userID: '609e7b1d43b45c1a9ad1d6e3'
         }
 
         await api
@@ -128,11 +130,13 @@ describe('Basic tests', () => {
     test('Posting a blog without title or URL yields status code 400', async () => {
         const noTitle = {
             author: 'NoTitle',
-            url: 'http://www.test.com/'
+            url: 'http://www.test.com/',
+            userID: '609e7b1d43b45c1a9ad1d6e3'
         }
         const noURL = {
             title: 'No URL',
-            author: 'Dummy'
+            author: 'Dummy',
+            userID: '609e7b1d43b45c1a9ad1d6e3'
         }
 
         await api
