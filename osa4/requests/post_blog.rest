@@ -6,6 +6,5 @@ Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Imphb
     "title": "Yes hello!",
     "author": "Keijo",
     "url": "http://www.dummy.fi/",
-    "likes": 2,
-    "userID": "609e7b1d43b45c1a9ad1d6e3"
+    "likes": 2
 }
