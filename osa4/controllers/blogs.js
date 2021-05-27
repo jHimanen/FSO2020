@@ -12,6 +12,9 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
     try {
         const body = request.body
         const user = await request.user
+        if (!user) {
+            return response.status(401).json({ error: 'token is missing or false' })
+        }
 
         const blog = new Blog({
             title: body.title,
@@ -36,8 +39,6 @@ blogsRouter.post('/', userExtractor, async (request, response) => {
 blogsRouter.delete('/:id', userExtractor, async (request, response) => {
     const user = await request.user
     const toBeDeleted = await Blog.findById(request.params.id)
-    console.log(toBeDeleted)
-    console.log(user.id)
 
     if (user.id != toBeDeleted.user) {
         return response.status(401).json({ error: 'not authorized to delete this blog' })
