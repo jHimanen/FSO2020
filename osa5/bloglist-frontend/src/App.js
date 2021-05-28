@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login' 
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [notificationObject, setNotificationObject] = useState({})
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -35,14 +33,10 @@ const App = () => {
     }, 5000)
   }
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    console.log('logging in with', username, password)
-
+  const handleLogin = async (credentials) => {
     try {
-      const user = await loginService.login({
-        username, password
-      })
+      const user = await loginService.login(credentials)
+      console.log('Logging in with', credentials.username, credentials.password)
 
       blogService.setToken(user.token)
 
@@ -51,9 +45,7 @@ const App = () => {
       )
 
       setUser(user)
-      setUsername('')
-      setPassword('')
-      
+
     } catch (error) {
       changeNotification('error', 'Wrong username or password!')
     }
@@ -66,95 +58,42 @@ const App = () => {
     setUser(null)
   }
 
-  const submitBlog = async (event) => {
-    event.preventDefault()
+  const submitBlog = async (blogObject) => {
     await blogService.setToken(user.token)
 
-    const res = await blogService.create({
-      title: title,
-      author: author,
-      url: url
-    })
+    const res = await blogService.create(blogObject)
     console.log(res)
 
     const updatedBlogs = await blogService.getAll()
     setBlogs(updatedBlogs)
     changeNotification(
-      'success', `A new blog "${title}" by ${author} added!`
+      'success', `A new blog "${blogObject.title}" by ${blogObject.author} added!`
     )
-    setTitle('')
-    setAuthor('')
-    setUrl('')
   }
 
   if (user === null) {
     return (
       <div>
         <Notification type={notificationObject.type} message={notificationObject.message} />
-        <h2>Login</h2>
-        <form onSubmit={handleLogin}>
-          <div>
-            Username
-            <input
-              type="text"
-              value={username}
-              name="Username"
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          <div>
-            Password
-            <input
-              type="password"
-              value={password}
-              name="Password"
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type="submit">Login</button>
-        </form>
+        <LoginForm login={handleLogin}/>
       </div>
     )
   } else {
     return (
       <div>
         <Notification type={notificationObject.type} message={notificationObject.message} />
+        
         <h1>Blogs</h1>
+
         <div>
           {user.name} logged in
           <button onClick={handleLogout}>Logout</button>
         </div>
-        <h1>Create new</h1>
-        <form onSubmit={submitBlog}>
-          <div>
-            Title:
-            <input
-              type="text"
-              value={title}
-              name="Title"
-              onChange={({ target }) => setTitle(target.value)}
-            />
-          </div>
-          <div>
-            Author:
-            <input
-              type="text"
-              value={author}
-              name="Author"
-              onChange={({ target }) => setAuthor(target.value)}
-            />
-          </div>
-          <div>
-            URL:
-            <input
-              type="text"
-              value={url}
-              name="URL"
-              onChange={({ target }) => setUrl(target.value)}
-            />
-          </div>
-          <button type="submit">Create</button>
-        </form>
+
+        <Togglable buttonLabel="Create new blog">
+          <BlogForm createBlog={submitBlog}/>
+        </Togglable>
+
         <div>
           {blogs.map(blog =>
             <Blog key={blog.id} blog={blog} />
