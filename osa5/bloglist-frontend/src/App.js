@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import Blog from './components/Blog'
+import Notification from './components/Notification'
 import blogService from './services/blogs'
 import loginService from './services/login' 
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [errorMessage, setErrorMessage] = useState(null)
+  const [notificationObject, setNotificationObject] = useState({})
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -27,6 +28,13 @@ const App = () => {
     }
   }, [])
 
+  const changeNotification = (type, message) => {
+    setNotificationObject({type, message})
+    setTimeout(() => {
+      setNotificationObject({})
+    }, 5000)
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault()
     console.log('logging in with', username, password)
@@ -47,10 +55,7 @@ const App = () => {
       setPassword('')
       
     } catch (error) {
-      setErrorMessage('Wrong credentials')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      changeNotification('error', 'Wrong username or password!')
     }
   }
 
@@ -71,18 +76,21 @@ const App = () => {
       url: url
     })
     console.log(res)
-    
+
+    const updatedBlogs = await blogService.getAll()
+    setBlogs(updatedBlogs)
+    changeNotification(
+      'success', `A new blog "${title}" by ${author} added!`
+    )
     setTitle('')
     setAuthor('')
     setUrl('')
-    
-    const updatedBlogs = await blogService.getAll()
-    setBlogs(updatedBlogs)
   }
 
   if (user === null) {
     return (
       <div>
+        <Notification type={notificationObject.type} message={notificationObject.message} />
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
           <div>
@@ -110,6 +118,7 @@ const App = () => {
   } else {
     return (
       <div>
+        <Notification type={notificationObject.type} message={notificationObject.message} />
         <h1>Blogs</h1>
         <div>
           {user.name} logged in
