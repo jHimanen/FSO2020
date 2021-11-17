@@ -24,14 +24,14 @@ const Notification = ({ type, message }) => {
 
   if (type === 'success') {
     return (
-      <div style={successStyle} >
+      <div id="success" style={successStyle} >
         {message}
       </div>
     )
 
   } else if (type === 'error') {
     return (
-      <div style={errorStyle}>
+      <div id="error" style={errorStyle}>
         {message}
       </div>
     )

@@ -16,7 +16,9 @@ const user = {
 
 const mockHandler = jest.fn()
 
-test('renders content', () => {
+describe('Blog component tests', () => {
+  
+  test('renders content', () => {
   const component = render(
     <Blog blog={blog} user={user}/>
   )
@@ -27,36 +29,37 @@ test('renders content', () => {
   expect(component.container).toHaveTextContent(
     'Test Tester'
   )
-})
+  })
 
-test('clicking the show button renders url and like amount', async () => {
-  const component = render(
-    <Blog blog={blog} user={user} />
-  )
+  test('clicking the show button renders url and like amount', async () => {
+    const component = render(
+      <Blog blog={blog} user={user} />
+    )
 
-  const button = component.getByText('View')
-  fireEvent.click(button)
-    
-  expect(component.container).toHaveTextContent(
-    'http://www.test.com'
-  )
-  expect(component.container).toHaveTextContent(
-    'Likes'
-  )
-})
+    const button = component.getByText('View')
+    fireEvent.click(button)
+      
+    expect(component.container).toHaveTextContent(
+      'http://www.test.com'
+    )
+    expect(component.container).toHaveTextContent(
+      'Likes'
+    )
+  })
 
-test('clicking the like button twice increments likes by two', () => {
-  const component = render(
-    <Blog blog={blog} user={user} update={mockHandler}/>
-  )
+  test('clicking the like button twice increments likes by two', () => {
+    const component = render(
+      <Blog blog={blog} user={user} update={mockHandler}/>
+    )
 
-  const viewButton = component.getByText('View')
-  fireEvent.click(viewButton)
+    const viewButton = component.getByText('View')
+    fireEvent.click(viewButton)
 
-  const likeButton = component.getByText('Like')
-  for (let x in [1,2]) {
-    fireEvent.click(likeButton)
-  }
+    const likeButton = component.getByText('Like')
+    for (let x in [1,2]) {
+      fireEvent.click(likeButton)
+    }
 
-  expect(mockHandler.mock.calls).toHaveLength(2)
+    expect(mockHandler.mock.calls).toHaveLength(2)
+  })
 })

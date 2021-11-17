@@ -36,10 +36,10 @@ const Blog = ({ blog, update, user }) => {
   if (!deleted) {
     return (
       <div style={blogStyle}>
-        <div style={hideWhenVisible}>
+        <div id='title' style={hideWhenVisible}>
           <p>
             {blog.title} {blog.author}
-            <button onClick={() => setInfoVisible(true)}>View</button>
+            <button id="view-button" onClick={() => setInfoVisible(true)}>View</button>
           </p>
         </div>
 
@@ -51,10 +51,10 @@ const Blog = ({ blog, update, user }) => {
           <p>{blog.url}</p>
           <p>
             Likes {blog.likes}
-            <button onClick={() => incrementLikes()}>Like</button>
+            <button id="like-button" onClick={() => incrementLikes()}>Like</button>
           </p>
           <p>{blog.user.name}</p>
-          <button style={showIfUserMatches} onClick={() => deleteBlog(blog.id)}>Remove</button>
+          <button id="remove-button" style={showIfUserMatches} onClick={() => deleteBlog(blog.id)}>Remove</button>
         </div>
       </div>
     )

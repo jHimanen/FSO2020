@@ -7,7 +7,8 @@
     "start": "NODE_ENV=production node index.js",
     "test": "NODE_ENV=test jest --verbose --runInBand",
     "lint": "node_modules/.bin/eslint",
-    "dev": "NODE_ENV=development nodemon index.js"
+    "dev": "NODE_ENV=development nodemon index.js",
+    "start:test": "NODE_ENV=test node index.js"
   },
   "author": "Joel Himanen",
   "license": "ISC",
