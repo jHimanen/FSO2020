@@ -7,7 +7,8 @@ const anecdotesAtStart = [
   'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
 ]
 
-const reducer = (state = initialState, action) => {
+const anecdoteReducer = (state = initialState, action) => {
+
   console.log('state now: ', state)
   console.log('action', action)
 
@@ -60,4 +61,4 @@ export const createAnecdote = (content) => {
 
 const initialState = anecdotesAtStart.map(asObject)
 
-export default reducer
+export default anecdoteReducer
