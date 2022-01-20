@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
@@ -77,6 +77,7 @@ const App = () => {
   const updateBlog = (blog) => {
     blogService.update(blog.id, blog)
   }
+
 
   if (user === null) {
     return (
